@@ -18,13 +18,22 @@ def get_logger_config() -> Dict[str, Any]:
         Path.cwd() / 'dbt' / 'dbt_logger.yml',
         Path.cwd() / 'dbt_logger.yml',
     ]
-    
+
+    # Also check next to profiles.yml if found
+    try:
+        from .utils import get_dbt_profile_path
+        profiles_path = get_dbt_profile_path()
+        profiles_dir = profiles_path.parent.parent if profiles_path.name == 'profiles.yml' and profiles_path.parent.name == 'profiles' else profiles_path.parent
+        config_paths.append(profiles_dir / 'dbt_logger.yml')
+    except Exception:
+        pass
+
     for config_path in config_paths:
         if config_path.exists():
             with open(config_path, 'r') as f:
                 config = yaml.safe_load(f) or {}
                 return config
-    
+
     return {}
 
 
